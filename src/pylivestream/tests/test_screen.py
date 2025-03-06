@@ -18,10 +18,10 @@ ini = Path(__file__).parents[1] / "data/pylivestream.json"
 def test_props(site):
     S = pls.Screenshare(ini, websites=site)
 
-    assert "-re" not in S.streams.cmd
-    assert S.streams.fps == approx(30.0)
+    assert "-re" not in S.stream.cmd
+    assert S.stream.fps == approx(30.0)
 
-    assert S.streams.video_kbps == 1250
+    assert S.stream.video_kbps == 1250
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -29,7 +29,7 @@ def test_props(site):
 def test_stream():
     S = pls.Screenshare(ini, websites="localhost", timeout=5)
 
-    S.golive()
+    S.stream.startlive()
 
 
 @pytest.mark.skipif(CI or WSL, reason="no GUI typically")

@@ -81,7 +81,7 @@ class Stream:
 
         self.F = Ffmpeg()
 
-        self.loglevel: list[str] = self.F.INFO if kwargs.get("verbose") else self.F.ERROR
+        self.loglevel: list[str] = self.F.INFO if kwargs.get("verbose") else self.F.WARNING
 
         self.inifn: Path = Path(inifn).expanduser().resolve(strict=True)
 
@@ -174,6 +174,8 @@ class Stream:
         self.video_format = syscfg.get("video_format")
 
         self.video_kbps: int = sitecfg.get("video_kbps")
+        self.videomax_kbps: int = sitecfg.get("videomax_kbps")
+
         self.audio_bps: str = sitecfg.get("audio_bps")
 
         self.keyframe_sec: int = sitecfg.get("keyframe_sec")
@@ -224,19 +226,19 @@ class Stream:
             return []
         # %% FFmpeg preset https://trac.ffmpeg.org/wiki/Encode/H.264#Preset
         v += ["-preset", self.preset]
+
+        fps = self.fps if self.fps is not None else FPS
         # %% variable bitrate (VBR) for video
         # units of kbps
         if self.video_kbps:
             v += ["-b:v", str(self.video_kbps) + "k"]
+            v += ["-g", str(self.keyframe_sec * fps)]
         else:
             v += ["-f", "hls"]
         # %% framerate
-        fps = self.fps if self.fps is not None else FPS
 
         if self.image:
             v += ["-r", str(fps)]
-        # %% keyframe interval
-        v += ["-g", str(self.keyframe_sec * fps)]
 
         return v
 
@@ -403,14 +405,16 @@ class Stream:
         # constrain to single thread, default is multi-thread
         # buf = ['-threads', '1']
 
-        buf = ["-maxrate", f"{self.video_kbps}k", "-bufsize", f"{self.video_kbps//2}k"]
+        buf = []
+
+        if self.videomax_kbps:
+            buf += ["-maxrate", f"{self.videomax_kbps}k"]
+
+        if self.video_kbps:
+            buf += ["-bufsize", f"{self.video_kbps//2}k"]
 
         if self.staticimage:  # static image + audio
             buf += ["-shortest"]
-
-        # for very old versions of FFmpeg, such as Ubuntu 16.04
-        # still OK for current FFmpeg versions too
-        buf += ["-strict", "experimental"]
 
         # must manually specify container format when streaming to web.
         buf += ["-f", "flv"]

@@ -17,7 +17,7 @@ def stream_screen(
     else:
         input(f"Press Enter to go live on {websites}    Or Ctrl C to abort.")
 
-    S.golive()
+    S.stream.startlive()
 
 
 def cli():

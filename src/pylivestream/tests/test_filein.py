@@ -19,13 +19,13 @@ def test_props(site):
     vid = importlib.resources.files("pylivestream.data").joinpath("bunny.avi")
     S = pls.FileIn(ini, websites=site, infn=vid)
 
-    assert "-re" in S.streams.cmd
-    assert S.streams.fps == approx(24.0)
+    assert "-re" in S.stream.cmd
+    assert S.stream.fps == approx(24.0)
 
-    if int(S.streams.res[1]) == 480:
-        assert S.streams.video_kbps == 500
-    elif int(S.streams.res[1]) == 720:
-        assert S.streams.video_kbps == 1800
+    if int(S.stream.res[1]) == 480:
+        assert S.stream.video_kbps == 500
+    elif int(S.stream.res[1]) == 720:
+        assert S.stream.video_kbps == 1800
 
 
 @pytest.mark.parametrize("site", ["facebook"])
@@ -35,10 +35,10 @@ def test_audio(site):
     snd = importlib.resources.files("pylivestream.data").joinpath("orch_short.ogg")
 
     S = pls.FileIn(ini, websites=site, infn=snd, image=logo)
-    assert "-re" in S.streams.cmd
-    assert S.streams.fps is None
+    assert "-re" in S.stream.cmd
+    assert S.stream.fps is None
 
-    assert S.streams.video_kbps == 800
+    assert S.stream.video_kbps == 800
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -50,7 +50,7 @@ def test_simple():
 
     S = pls.FileIn(ini, websites="localhost", infn=aud, image=logo, yes=True, timeout=5)
 
-    S.golive()
+    S.stream.startlive()
 
 
 @pytest.mark.skipif(CI, reason="CI has no audio hardware typically")

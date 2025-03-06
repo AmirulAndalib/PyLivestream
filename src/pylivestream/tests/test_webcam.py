@@ -18,13 +18,13 @@ ini = Path(__file__).parents[1] / "data/pylivestream.json"
 def test_props(site):
     S = pls.Camera(ini, websites=site)
 
-    assert "-re" not in S.streams.cmd
-    assert S.streams.fps == approx(30.0)
+    assert "-re" not in S.stream.cmd
+    assert S.stream.fps == approx(30.0)
 
-    if int(S.streams.res[1]) == 480:
-        assert S.streams.video_kbps == 1250
-    elif int(S.streams.res[1]) == 720:
-        assert S.streams.video_kbps == 1800
+    if int(S.stream.res[1]) == 480:
+        assert S.stream.video_kbps == 1250
+    elif int(S.stream.res[1]) == 720:
+        assert S.stream.video_kbps == 1800
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -32,7 +32,7 @@ def test_props(site):
 def test_stream():
     S = pls.Camera(ini, websites="localhost", timeout=5)
 
-    S.golive()
+    S.stream.startlive()
 
 
 @pytest.mark.skipif(CI or WSL, reason="has no camera typically")

@@ -96,7 +96,6 @@ class Livestream(Stream):
         # %% stop the listener before starting the next process, or upon final process closing.
         if proc is not None and proc.poll() is None:
             proc.terminate()
-        yield
 
     def check_device(self, site: str | None = None) -> bool:
         """
@@ -107,12 +106,12 @@ class Livestream(Stream):
             try:
                 site = self.site
             except AttributeError:
-                site = list(self.streams.keys())[0]  # type: ignore
+                site = list(self.stream.keys())[0]  # type: ignore
 
         try:
             checkcmd = self.checkcmd
         except AttributeError:
-            checkcmd = self.streams[site].checkcmd  # type: ignore
+            checkcmd = self.stream[site].checkcmd  # type: ignore
 
         return check_device(checkcmd)
 
@@ -121,42 +120,26 @@ class Livestream(Stream):
 class Screenshare:
     def __init__(self, inifn: Path, websites: str, **kwargs) -> None:
 
-        self.streams = Livestream(inifn, websites, vidsource="screen", **kwargs)
-
-    def golive(self) -> None:
-
-        self.streams.startlive()
+        self.stream = Livestream(inifn, websites, vidsource="screen", **kwargs)
 
 
 class Camera:
     def __init__(self, inifn: Path, websites: str, **kwargs):
 
-        self.streams = Livestream(inifn, websites, vidsource="camera", **kwargs)
-
-    def golive(self) -> None:
-
-        self.streams.startlive()
+        self.stream = Livestream(inifn, websites, vidsource="camera", **kwargs)
 
 
 class Microphone:
     def __init__(self, inifn: Path, websites: str, **kwargs):
 
-        self.streams = Livestream(inifn, websites, **kwargs)
-
-    def golive(self) -> None:
-
-        self.streams.startlive()
+        self.stream = Livestream(inifn, websites, **kwargs)
 
 
 # %% File-based inputs
 class FileIn:
     def __init__(self, inifn: Path, websites: str, **kwargs):
 
-        self.streams = Livestream(inifn, websites, vidsource="file", **kwargs)
-
-    def golive(self) -> None:
-
-        self.streams.startlive()
+        self.stream = Livestream(inifn, websites, vidsource="file", **kwargs)
 
 
 class SaveDisk(Stream):

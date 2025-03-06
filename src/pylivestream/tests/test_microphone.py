@@ -23,11 +23,11 @@ def test_microphone_props(site):
     logo = importlib.resources.files("pylivestream.data").joinpath("logo.png")
     S = pls.Microphone(ini, websites=site, image=logo)
 
-    assert "-re" not in S.streams.cmd
-    assert S.streams.fps is None
-    assert S.streams.res == [720, 540]
+    assert "-re" not in S.stream.cmd
+    assert S.stream.fps is None
+    assert S.stream.res == [720, 540]
 
-    assert S.streams.video_kbps == 800
+    assert S.stream.video_kbps == 800
 
 
 @pytest.mark.parametrize("site", ["facebook"])
@@ -36,11 +36,11 @@ def test_microphone_image(site):
     img = importlib.resources.files("pylivestream.data").joinpath("check4k.png")
     S = pls.Microphone(ini, websites=site, image=img)
 
-    assert "-re" not in S.streams.cmd
-    assert S.streams.fps is None
-    assert S.streams.res == [3840, 2160]
+    assert "-re" not in S.stream.cmd
+    assert S.stream.fps is None
+    assert S.stream.res == [3840, 2160]
 
-    assert S.streams.video_kbps == 4000
+    assert S.stream.video_kbps == 4000
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -48,7 +48,7 @@ def test_microphone_image(site):
 def test_stream():
     S = pls.Microphone(ini, websites="localhost", image=None, timeout=10)
 
-    S.golive()
+    S.stream.startlive()
 
 
 @pytest.mark.skipif(CI or WSL, reason="has no audio hardware typically")

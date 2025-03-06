@@ -76,7 +76,7 @@ def playonce(
             inifn, sites, infn=f, loop=False, image=image, caption=caption, yes=yes, timeout=timeout
         )
 
-        s.golive()
+        s.stream.startlive()
 
 
 def fileglob(path: Path, glob: str | None) -> list[Path]:

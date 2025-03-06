@@ -42,7 +42,7 @@ def stream_file(
         input(f"Press Enter to go live on {websites} with file {video_file}")
         print("Or Ctrl C to abort.")
 
-    S.golive()
+    S.stream.startlive()
 
 
 def stream_microphone(
@@ -65,7 +65,7 @@ def stream_microphone(
     else:
         input(f"Press Enter to go live on {websites}.    Or Ctrl C to abort.")
 
-    s.golive()
+    s.stream.startlive()
 
 
 def capture_screen(
@@ -91,4 +91,4 @@ def stream_camera(ini_file: Path, websites: str, *, assume_yes: bool, timeout: f
     else:
         input(f"Press Enter to go live on {websites}.    Or Ctrl C to abort.")
 
-    S.golive()
+    S.stream.startlive()
