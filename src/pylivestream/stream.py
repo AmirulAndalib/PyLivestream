@@ -1,4 +1,3 @@
-from __future__ import annotations
 import bisect
 from pathlib import Path
 import logging
@@ -11,14 +10,6 @@ from .ffmpeg import Ffmpeg, get_exe
 
 # %%  Col0: vertical pixels (height). Col1: video kbps. Interpolates.
 # NOTE: Python >= 3.6 has guaranteed dict() order.
-# YouTube spec: https://support.google.com/youtube/answer/2853702
-
-BR30 = {240: 300, 360: 400, 480: 500, 720: 2500, 1080: 3000, 1440: 6000, 2160: 13000}
-
-BR60 = {720: 2250, 1080: 4500, 1440: 9000, 2160: 20000}
-
-# for static images, ignore YouTube bitrate warning as long as image looks OK on stream
-BRS = {240: 200, 480: 400, 720: 800, 1080: 1200, 1440: 2000, 2160: 4000}
 
 FPS: float = 30.0  # default frames/sec if not defined otherwise
 
@@ -44,6 +35,44 @@ def get_video_codec(site: str) -> str:
     }
 
     return video_codecs.get(site, video_codecs["default"])
+
+
+def get_video_bitrate(site: str, fps: float | None, horiz_res: int) -> int:
+    """
+    YouTube spec: https://support.google.com/youtube/answer/2853702
+    Facebook: https://www.facebook.com/business/help/162540111070395
+    """
+
+    # for static images, ignore YouTube bitrate warning as long as image looks OK on stream
+    br_static = {240: 200, 480: 400, 720: 800, 1080: 1200, 1440: 2000, 2160: 4000}
+
+    match site:
+        case "youtube":
+            br30 = {720: 4000, 1080: 10000, 1440: 15000, 2160: 30000}
+            br60 = {720: 6000, 1080: 12000, 1440: 24000, 2160: 35000}
+            return 0  # uses HLS
+        case "facebook":
+            br30 = {360: 700, 480: 1250, 720: 2500, 1080: 4500}
+            br60 = {720: 4000, 1080: 6000}
+        case "owncast":
+            return 0  # uses HLS
+        case _:
+            br30 = {360: 700, 480: 1250, 720: 2500, 1080: 4500}
+            br60 = {720: 4000, 1080: 6000}
+
+    if fps is None or fps < 20:
+        k = br_static.keys()
+        v = br_static.values()
+    elif 20 <= fps <= 35:
+        k = br30.keys()
+        v = br30.values()
+    else:
+        k = br60.keys()
+        v = br60.values()
+
+    br = list(v)[bisect.bisect_left(list(k), horiz_res)]
+
+    return br
 
 
 # %% top level
@@ -197,7 +226,10 @@ class Stream:
         v += ["-preset", self.preset]
         # %% variable bitrate (VBR) for video
         # units of kbps
-        v += ["-b:v", str(self.video_kbps) + "k"]
+        if self.video_kbps:
+            v += ["-b:v", str(self.video_kbps) + "k"]
+        else:
+            v += ["-f", "hls"]
         # %% framerate
         fps = self.fps if self.fps is not None else FPS
 
@@ -265,29 +297,17 @@ class Stream:
             return
 
         if self.res:
-            x: int = int(self.res[1])
+            horiz_res: int = int(self.res[1])
         elif self.vidsource is None or self.vidsource == "file":
             logging.info("assuming 480p input.")
-            x = 480
+            horiz_res = 480
         else:
             raise ValueError(
-                """
-Unsure of your video resolution request.
-Try setting video_kpbs in pylivestream.json file (see README.md)
-"""
+                "Unknown video resolution request. ",
+                "Try setting video_kbps in pylivestream.json file (see README.md)",
             )
 
-        if self.fps is None or self.fps < 20:
-            k = BRS.keys()
-            v = BRS.values()
-        elif 20 <= self.fps <= 35:
-            k = BR30.keys()
-            v = BR30.values()
-        else:
-            k = BR60.keys()
-            v = BR60.values()
-
-        self.video_kbps: int = list(v)[bisect.bisect_left(list(k), x)]  # type: ignore  # allow redef mypy bug?
+        self.video_kbps = get_video_bitrate(self.site, self.fps, horiz_res)
 
     def screengrab(self, quick: bool = False) -> list[str]:
         """

@@ -5,7 +5,7 @@
 [![pypi versions](https://img.shields.io/pypi/pyversions/PyLivestream.svg)](https://pypi.python.org/pypi/PyLivestream)
 [![PyPi Download stats](https://static.pepy.tech/badge/pylivestream)](https://pepy.tech/project/pylivestream)
 
-Streams to one or **multiple** streaming sites simultaneously, using pure object-oriented Python (no extra packages) and FFmpeg.
+Streams to a livestreaming video service, using pure object-oriented Python (no extra packages) to call FFmpeg.
 Tested with `flake8`, `mypy` type checking and `pytest`.
 `visual_tests.py` is a quick check of several command line scripting scenarios on your laptop.
 FFmpeg is used from Python `subprocess` to stream to sites including:
@@ -15,7 +15,7 @@ FFmpeg is used from Python `subprocess` to stream to sites including:
 * Twitch
 * also IBM Live Video, Vimeo, Restream.io and more for streaming broadcasts.
 
-![PyLivestream diagram showing screen capture or camera simultaneously livestreaming to multiple services.](./doc/logo.png)
+![PyLivestream diagram showing screen capture or camera livestreaming](./doc/logo.png)
 
 [Troubleshooting](./Troubleshooting.md)
 
@@ -201,20 +201,17 @@ JSON:
 * `camera_size`: camera resolution -- find from `v4l2-ctl --list-formats-ext` or camera spec sheet.
 * `camera_fps`: camera fps -- found from command above or camera spec sheet
 
-Stream to multiple sites. This uses FFmpeg
-[-f tee](https://trac.ffmpeg.org/wiki/Creating%20multiple%20outputs#Teepseudo-muxer).
-For example, Facebook Live and YouTube Live simultaneously:
-
+Stream to livestreaming service using FFmpeg.
 ```sh
-python -m pylivestream.camera youtube facebook ./pylivestream.json
+python -m pylivestream.camera youtube ./pylivestream.json
 ```
 
 ### Screen Share Livestream
 
-Stream to multiple sites, in this example Facebook Live and YouTube Live simultaneously:
+Stream to livestreaming service, in this example Facebook Live:
 
 ```sh
-python -m pylivestream.screen youtube facebook ./pylivestream.json
+python -m pylivestream.screen facebook ./pylivestream.json
 ```
 
 ### Image + Audio Livestream
@@ -222,7 +219,7 @@ python -m pylivestream.screen youtube facebook ./pylivestream.json
 Microphone audio + static image is accomplished by
 
 ```sh
-python -m pylivestream.microphone youtube facebook ./pylivestream.json -image doc/logo.jpg
+python -m pylivestream.microphone youtube ./pylivestream.json -image doc/logo.jpg
 ```
 
 or wherever your image file is.

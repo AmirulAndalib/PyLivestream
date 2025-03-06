@@ -8,37 +8,37 @@ import importlib.resources
 
 import pylivestream as pls
 
-sites = ["youtube", "facebook"]
 TIMEOUT = 30
 CI = os.environ.get("CI", None) in ("true", "True")
 ini = Path(__file__).parents[1] / "data/pylivestream.json"
 
 
-def test_props():
+@pytest.mark.parametrize("site", ["facebook"])
+def test_props(site):
 
     vid = importlib.resources.files("pylivestream.data").joinpath("bunny.avi")
-    S = pls.FileIn(ini, websites=sites, infn=vid)
-    for s in S.streams:
-        assert "-re" in S.streams[s].cmd
-        assert S.streams[s].fps == approx(24.0)
+    S = pls.FileIn(ini, websites=site, infn=vid)
 
-        if int(S.streams[s].res[1]) == 480:
-            assert S.streams[s].video_kbps == 500
-        elif int(S.streams[s].res[1]) == 720:
-            assert S.streams[s].video_kbps == 1800
+    assert "-re" in S.streams.cmd
+    assert S.streams.fps == approx(24.0)
+
+    if int(S.streams.res[1]) == 480:
+        assert S.streams.video_kbps == 500
+    elif int(S.streams.res[1]) == 720:
+        assert S.streams.video_kbps == 1800
 
 
-def test_audio():
+@pytest.mark.parametrize("site", ["facebook"])
+def test_audio(site):
 
     logo = importlib.resources.files("pylivestream.data").joinpath("logo.png")
     snd = importlib.resources.files("pylivestream.data").joinpath("orch_short.ogg")
 
-    S = pls.FileIn(ini, websites=sites, infn=snd, image=logo)
-    for s in S.streams:
-        assert "-re" in S.streams[s].cmd
-        assert S.streams[s].fps is None
+    S = pls.FileIn(ini, websites=site, infn=snd, image=logo)
+    assert "-re" in S.streams.cmd
+    assert S.streams.fps is None
 
-        assert S.streams[s].video_kbps == 800
+    assert S.streams.video_kbps == 800
 
 
 @pytest.mark.timeout(TIMEOUT)

@@ -1,4 +1,3 @@
-from __future__ import annotations
 import random
 from pathlib import Path
 import signal
@@ -15,7 +14,7 @@ except ImportError:
 
 def stream_files(
     ini_file: Path,
-    websites: list[str],
+    websites: str,
     *,
     video_path: Path,
     glob: str | None = None,
@@ -50,7 +49,7 @@ def stream_files(
 def playonce(
     flist: list[Path],
     image: Path | None,
-    sites: list[str],
+    sites: str,
     inifn: Path,
     shuffle: bool,
     usemeta: bool,
@@ -105,7 +104,6 @@ def cli():
     p.add_argument(
         "websites",
         help="site to stream, e.g. localhost youtube facebook twitch",
-        nargs="+",
     )
     p.add_argument("json", help="JSON file with stream parameters such as key")
     p.add_argument("-glob", help="file glob pattern to stream.")

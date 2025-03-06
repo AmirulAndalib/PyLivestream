@@ -11,38 +11,36 @@ import os
 import platform
 import importlib.resources
 
-sites = ["youtube", "facebook"]
-
 TIMEOUT = 30
 CI = os.environ.get("CI", None) in ("true", "True")
 WSL = "Microsoft" in platform.uname().release
 ini = Path(__file__).parents[1] / "data/pylivestream.json"
 
 
-def test_microphone_props():
+@pytest.mark.parametrize("site", ["facebook"])
+def test_microphone_props(site):
 
     logo = importlib.resources.files("pylivestream.data").joinpath("logo.png")
-    S = pls.Microphone(ini, websites=sites, image=logo)
+    S = pls.Microphone(ini, websites=site, image=logo)
 
-    for s in S.streams:
-        assert "-re" not in S.streams[s].cmd
-        assert S.streams[s].fps is None
-        assert S.streams[s].res == [720, 540]
+    assert "-re" not in S.streams.cmd
+    assert S.streams.fps is None
+    assert S.streams.res == [720, 540]
 
-        assert S.streams[s].video_kbps == 800
+    assert S.streams.video_kbps == 800
 
 
-def test_microphone_image():
+@pytest.mark.parametrize("site", ["facebook"])
+def test_microphone_image(site):
 
     img = importlib.resources.files("pylivestream.data").joinpath("check4k.png")
-    S = pls.Microphone(ini, websites=sites, image=img)
+    S = pls.Microphone(ini, websites=site, image=img)
 
-    for s in S.streams:
-        assert "-re" not in S.streams[s].cmd
-        assert S.streams[s].fps is None
-        assert S.streams[s].res == [3840, 2160]
+    assert "-re" not in S.streams.cmd
+    assert S.streams.fps is None
+    assert S.streams.res == [3840, 2160]
 
-        assert S.streams[s].video_kbps == 4000
+    assert S.streams.video_kbps == 4000
 
 
 @pytest.mark.timeout(TIMEOUT)

@@ -8,24 +8,23 @@ import subprocess
 import os
 import platform
 
-sites = ["localhost", "youtube", "facebook"]
-
 TIMEOUT = 30
 CI = os.environ.get("CI", None) in ("true", "True")
 WSL = "Microsoft" in platform.uname().release
 ini = Path(__file__).parents[1] / "data/pylivestream.json"
 
 
-def test_props():
-    S = pls.Camera(ini, websites=sites)
-    for s in S.streams:
-        assert "-re" not in S.streams[s].cmd
-        assert S.streams[s].fps == approx(30.0)
+@pytest.mark.parametrize("site", ["localhost", "facebook"])
+def test_props(site):
+    S = pls.Camera(ini, websites=site)
 
-        if int(S.streams[s].res[1]) == 480:
-            assert S.streams[s].video_kbps == 500
-        elif int(S.streams[s].res[1]) == 720:
-            assert S.streams[s].video_kbps == 1800
+    assert "-re" not in S.streams.cmd
+    assert S.streams.fps == approx(30.0)
+
+    if int(S.streams.res[1]) == 480:
+        assert S.streams.video_kbps == 1250
+    elif int(S.streams.res[1]) == 720:
+        assert S.streams.video_kbps == 1800
 
 
 @pytest.mark.timeout(TIMEOUT)

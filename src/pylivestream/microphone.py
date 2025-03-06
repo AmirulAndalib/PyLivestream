@@ -9,11 +9,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     p = argparse.ArgumentParser(description="livestream microphone audio")
-    p.add_argument(
-        "websites",
-        help="site to stream, e.g. localhost youtube facebook twitch",
-        nargs="+",
-    )
+    p.add_argument("websites", help="site to stream, e.g. localhost youtube facebook twitch")
     p.add_argument("-image", help="static image to display.")
     p.add_argument("json", help="JSON file with stream parameters such as key")
     p.add_argument("-y", "--yes", help="no confirmation dialog", action="store_true")

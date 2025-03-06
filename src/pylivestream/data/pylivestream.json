@@ -6,7 +6,6 @@
   "camera_fps": 30,
   "audio_rate": 44100,
   "audio_bps": 128000,
-  "preset": "veryfast",
   "audio_codec": "aac",
   "exe": "ffmpeg",
   "ffprobe_exe": "ffprobe",
