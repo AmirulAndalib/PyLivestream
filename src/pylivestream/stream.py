@@ -98,7 +98,9 @@ class Stream:
             raise ValueError(f"need height, width of video resolution, I have: {self.res}")
 
         self.audio_rate: str = C.get("audio_rate")
-        self.preset: str = C.get("preset")
+
+        # https://trac.ffmpeg.org/wiki/Encode/H.264#Preset
+        self.preset: str = C.get("preset", "veryfast")
 
         if not self.timelimit:
             self.timelimit = self.F.timelimit(sitecfg.get("timelimit"))
@@ -113,7 +115,9 @@ class Stream:
 
         self.hcam: str = syscfg.get("hcam")
 
-        self.video_codec = C.get("video_codec")
+        # H.265 suggested by YouTube, but not yet by Facebook.
+        self.video_codec = C.get("video_codec", "libx264")
+
         self.audio_codec = C.get("audio_codec")
         self.video_format = syscfg.get("video_format")
 
@@ -152,26 +156,31 @@ class Stream:
         configure video output
         """
 
-        v: list[str] = ["-codec:v", self.video_codec, "-pix_fmt", self.video_format]
+        v = ["-codec:v", self.video_codec]
+
+        v += ["-pix_fmt", self.video_format]
         # %% set frames/sec, bitrate and keyframe interval
         """
-         DON'T DO THIS.
+         DON'T use -tune stillimage.
          It makes keyframes/bitrate far off from what streaming sites want
-         v += ['-tune', 'stillimage']
+         # v += ['-tune', 'stillimage']
 
-         The settings below still save video/data bandwidth for the still image
-         + audio case.
+        Settings below still save video/data bandwidth for the still image + audio case.
         """
+
         if self.res is None:  # audio-only, no image or video
             return []
-
+        # %% FFmpeg preset https://trac.ffmpeg.org/wiki/Encode/H.264#Preset
+        v += ["-preset", self.preset]
+        # %% variable bitrate (VBR) for video
+        # units of kbps
+        v += ["-b:v", str(self.video_kbps) + "k"]
+        # %% framerate
         fps = self.fps if self.fps is not None else FPS
-
-        v += ["-preset", self.preset, "-b:v", str(self.video_kbps) + "k"]
 
         if self.image:
             v += ["-r", str(fps)]
-
+        # %% keyframe interval
         v += ["-g", str(self.keyframe_sec * fps)]
 
         return v
@@ -195,7 +204,7 @@ class Stream:
             self.audio_chan = f"anullsrc=sample_rate={self.audio_rate}:channel_layout=stereo"
 
         if self.vidsource == "file":
-            a: list[str] = []
+            a = []
         elif self.acap == "null":
             a = ["-f", "lavfi", "-i", self.audio_chan]
         else:
