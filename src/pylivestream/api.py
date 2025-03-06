@@ -12,12 +12,10 @@ pls.microphone('twitch')
 from pathlib import Path
 
 from .base import FileIn, Microphone, SaveDisk, Camera
-from .fglob import stream_files
 from .screen import stream_screen
 
 __all__ = [
     "stream_file",
-    "stream_files",
     "stream_microphone",
     "stream_camera",
     "stream_screen",
@@ -35,14 +33,7 @@ def stream_file(
 ):
     S = FileIn(ini_file, websites, infn=video_file, loop=loop, yes=assume_yes, timeout=timeout)
 
-    # %% Go live
-    if assume_yes:
-        print(f"going live on {websites} with file {video_file}")
-    else:
-        input(f"Press Enter to go live on {websites} with file {video_file}")
-        print("Or Ctrl C to abort.")
-
-    S.stream.startlive()
+    print(" ".join(S.stream.cmd))
 
 
 def stream_microphone(
@@ -57,15 +48,9 @@ def stream_microphone(
     livestream audio, with still image background
     """
 
-    s = Microphone(ini_file, websites, image=still_image, yes=assume_yes, timeout=timeout)
+    S = Microphone(ini_file, websites, image=still_image, yes=assume_yes, timeout=timeout)
 
-    # %% Go live
-    if assume_yes:
-        print("going live on", websites)
-    else:
-        input(f"Press Enter to go live on {websites}.    Or Ctrl C to abort.")
-
-    s.stream.startlive()
+    print(" ".join(S.stream.cmd))
 
 
 def capture_screen(
@@ -85,10 +70,5 @@ def capture_screen(
 def stream_camera(ini_file: Path, websites: str, *, assume_yes: bool, timeout: float):
 
     S = Camera(ini_file, websites, yes=assume_yes, timeout=timeout)
-    # %% Go live
-    if assume_yes:
-        print("going live on", websites)
-    else:
-        input(f"Press Enter to go live on {websites}.    Or Ctrl C to abort.")
 
-    S.stream.startlive()
+    print(" ".join(S.stream.cmd))

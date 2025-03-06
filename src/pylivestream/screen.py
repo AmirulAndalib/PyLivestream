@@ -11,13 +11,7 @@ def stream_screen(
 
     S = Screenshare(ini_file, websites, yes=assume_yes, timeout=timeout)
 
-    # %% Go live
-    if assume_yes:
-        print("going live on", websites)
-    else:
-        input(f"Press Enter to go live on {websites}    Or Ctrl C to abort.")
-
-    S.stream.startlive()
+    print(" ".join(S.stream.cmd))
 
 
 def cli():

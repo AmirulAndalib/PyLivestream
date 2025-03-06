@@ -2,10 +2,12 @@
 
 [![DOI](https://zenodo.org/badge/91214767.svg)](https://zenodo.org/badge/latestdoi/91214767)
 ![Actions Status](https://github.com/scivision/pylivestream/workflows/ci/badge.svg)
-[![pypi versions](https://img.shields.io/pypi/pyversions/PyLivestream.svg)](https://pypi.python.org/pypi/PyLivestream)
-[![PyPi Download stats](https://static.pepy.tech/badge/pylivestream)](https://pepy.tech/project/pylivestream)
+[![PyPI versions](https://img.shields.io/pypi/pyversions/PyLivestream.svg)](https://pypi.python.org/pypi/PyLivestream)
+[![PyPI Download stats](https://static.pepy.tech/badge/pylivestream)](https://pepy.tech/project/pylivestream)
 
-Streams to a livestreaming video service, using pure object-oriented Python (no extra packages) to call FFmpeg.
+NOTE: This project is archived effectively. Use OBS Studio etc. for livestreaming.
+
+Emits command to run FFmpeg for livestreaming video services, using pure object-oriented Python.
 Tested with `flake8`, `mypy` type checking and `pytest`.
 `visual_tests.py` is a quick check of several command line scripting scenarios on your laptop.
 FFmpeg is used from Python `subprocess` to stream to sites including:
@@ -47,8 +49,6 @@ Other projects using FFmpeg from Python include:
 * [ffmpy](https://github.com/Ch00k/ffmpy) FFmpeg subprocess without asyncio
 
 ## Install
-
-Requires FFmpeg &ge; 4.2 for RTMPS as required or recommended by Facebook Live, YouTube Live, etc.
 
 Latest release:
 
@@ -128,9 +128,6 @@ v4l2-ctl --list-devices
 
 ## API
 
-There are two ways to start a stream (assuming you've configured as per following sections).
-Both do the same thing.
-
 * command line
   * python -m pylivestream.fglob
   * python -m pylivestream.screen
@@ -152,7 +149,7 @@ The user must specify this JSON file location.
 
 1. [configure](https://www.youtube.com/live_dashboard) YouTube Live.
 2. Edit "pylivestream.json" to have the YouTube streamid
-3. Run Python script and chosen input will stream on YouTube Live.
+3. Run Python script for YouTube with chosen input
 
 ```sh
 python -m pylivestream.screen youtube ./pylivestream.json
@@ -183,14 +180,16 @@ python -m pylivestream.screen twitch ./pylivestream.json
 
 ## Usage
 
-Due to the complexity of streaming and the non-specific error codes FFmpeg emits, the default behavior is that if FFmpeg detects one stream has failed, ALL streams will stop streaming and the program ends.
-
 Setup a pylivestream.json for computer and desired parameters.
 Copy the provided
 [pylivestream.json](./src/pylivestream/data/pylivestream.json)
 and edit with values you determine.
 
-[File-Streaming](./File-Streaming.md)
+Single video file:
+
+```sh
+python -m pylivestream.loopfile videofile youtube
+```
 
 ### Camera
 
@@ -201,43 +200,32 @@ JSON:
 * `camera_size`: camera resolution -- find from `v4l2-ctl --list-formats-ext` or camera spec sheet.
 * `camera_fps`: camera fps -- found from command above or camera spec sheet
 
-Stream to livestreaming service using FFmpeg.
 ```sh
 python -m pylivestream.camera youtube ./pylivestream.json
 ```
 
-### Screen Share Livestream
-
-Stream to livestreaming service, in this example Facebook Live:
+Screenshare Livestream:
 
 ```sh
 python -m pylivestream.screen facebook ./pylivestream.json
 ```
 
-### Image + Audio Livestream
-
-Microphone audio + static image is accomplished by
+Microphone audio + static image is accomplished by:
 
 ```sh
 python -m pylivestream.microphone youtube ./pylivestream.json -image doc/logo.jpg
 ```
 
-or wherever your image file is.
-
 ### Audio-only Livestream
 
 Audio-only streaming is not typically allowed by the Video streaming sites.
 It may fail to work altogether, or may fail when one file is done and another starts.
-That's not something we can fix within the scope of this project.
-You can test it to your own computer by:
 
 ```sh
 python -m pylivestream.microphone localhost ./pylivestream.json
 ```
 
-### Screen capture to disk
-
-This script saves your screen capture to a file on your disk:
+Saves screen capture to a file on your disk:
 
 ```sh
 python -m pylivestream.screen2disk myvid.avi ./pylivestream.json
