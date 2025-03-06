@@ -23,6 +23,29 @@ BRS = {240: 200, 480: 400, 720: 800, 1080: 1200, 1440: 2000, 2160: 4000}
 FPS: float = 30.0  # default frames/sec if not defined otherwise
 
 
+def get_video_codec(site: str) -> str:
+    """
+    Get the suggested video codec for a given site.
+
+    YouTube: https://support.google.com/youtube/answer/2853702
+    Facebook: https://www.facebook.com/business/help/162540111070395
+    Owncast: https://owncast.online/docs/codecs/
+    Twitch: https://www.facebook.com/business/help/162540111070395
+    Vimeo: https://help.vimeo.com/hc/en-us/articles/12426924775953-Encoder-guide
+    """
+
+    video_codecs = {
+        "youtube": "libx265",
+        "facebook": "libx264",
+        "owncast": "libx264",
+        "twitch": "libx264",
+        "vimeo": "libx264",
+        "default": "libx264",
+    }
+
+    return video_codecs.get(site, video_codecs["default"])
+
+
 # %% top level
 class Stream:
     def __init__(self, inifn: Path, site: str, **kwargs):
@@ -116,7 +139,7 @@ class Stream:
         self.hcam: str = syscfg.get("hcam")
 
         # H.265 suggested by YouTube, but not yet by Facebook.
-        self.video_codec = C.get("video_codec", "libx264")
+        self.video_codec = C.get("video_codec", get_video_codec(self.site))
 
         self.audio_codec = C.get("audio_codec")
         self.video_format = syscfg.get("video_format")

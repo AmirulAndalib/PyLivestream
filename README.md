@@ -279,6 +279,7 @@ DirectShow didn't seem to work on Windows, so we used gdigrab instead.
 
 * [YouTube Live parameters](https://support.google.com/youtube/answer/2853702)
 * [Facebook Live parameters](https://www.facebook.com/business/help/162540111070395)
+* [Owncast parameters](https://owncast.online/docs/codecs/)
 * [IBM Cloud Video parameters](https://support.video.ibm.com/hc/en-us/articles/207852117-Internet-connection-and-recommended-encoding-settings)
 * [Vimeo](https://help.vimeo.com/hc/en-us/articles/12426924775953-Encoder-guide)
 

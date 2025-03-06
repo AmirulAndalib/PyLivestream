@@ -7,7 +7,6 @@
   "audio_rate": 44100,
   "audio_bps": 128000,
   "preset": "veryfast",
-  "video_codec": "libx264",
   "audio_codec": "aac",
   "exe": "ffmpeg",
   "ffprobe_exe": "ffprobe",
